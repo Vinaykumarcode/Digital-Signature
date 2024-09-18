@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .container{
+            position: absolute;
+            top:50%;
+            left:50%;
+            transform: translate(-50%,-50%);
+        }
+        canvas{
+            border: 1px solid black;
+        }
+        .Threedivs, .last{
+            display:flex;
+            justify-content: space-between;
+            flex-direction: row;
+        }
+        
+        input,button,select, .Colors{
+            width:80%;
+        }
+
+        .Colors{
+            margin:10px;
+        }
+        button{
+            margin:10px;
+            border: none;
+            border-radius: 10px;
+            padding:10px;
+        }
+        
+       p{
+        margin:10px auto;
+        width:50%;
+       }
+
+       .red{
+        background-color: red;
+        color:white;
+
+       }
+       .green{
+        background-color: green;
+        color:white;
+
+       }
+       .orange{
+        background-color: orange;
+        color:white;
+
+       }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="first">
+           <div class="Threedivs">
+              <div class="Colors">
+                 <p>Text Color</p>
+                 <input type="color" id="text-color"/>
+              </div>
+              <div class="Colors">
+                <p>Background Color</p>
+                <input type="color" id="background-color"/>
+              </div>
+              <div class="Colors">
+                <p>Font Size</p>
+                <select id="font-size">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                    <option value="25">25</option>
+                     <option value="35">35</option>
+                    
+                </select>
+              </div>
+           </div>
+        </div>
+
+        <canvas id="canvas" height="500" width="800"></canvas>
+        <div class="last">
+            <button type="button" class="red" id="clear">Clear</button>
+            <button type="button" class="green" id="save">Save & Download</button>
+            <button type="button" class="orange" id="retrieve">Retrieve Saved Signature</button>
+        </div>
+    </div>
+    <script>
+        const textColor=document.getElementById('text-color');
+        const backgroundColor = document.getElementById('background-color');
+        const canvas = document.getElementById('canvas');
+        const fontSize = document.getElementById('font-size')
+        const clearButton = document.getElementById('clear');
+        const saveButton = document.getElementById('save');
+        const retrieveButton = document.getElementById('retrieve');
+        const canvasContent = canvas.getContext('2d');
+
+        textColor.addEventListener('change',(e)=>{
+            canvasContent.strokeStyle=e.target.value;
+            canvasContent.fillStyle = e.target.value;
+        })
+
+        canvas.addEventListener('mousedown',(e)=>{
+            isDrawing= true;
+            lastX = event.offsetX;
+            lastY = event.offsetY;
+        })
+        canvas.addEventListener('mousemove',(e)=>{
+            if(isDrawing){
+                canvasContent.beginPath();
+                canvasContent.moveTo(lastX,lastY);
+                canvasContent.lineTo(event.offsetX,event.offsetY);
+                canvasContent.stroke();
+                lastX = event.offsetX;
+            lastY = event.offsetY;
+            }
+        })
+        canvas.addEventListener('mouseup',(e)=>{
+            isDrawing= false;
+        })
+        backgroundColor.addEventListener('change',(e)=>{
+            canvasContent.fillStyle=e.target.value;
+            canvasContent.fillRect(0,0,800,500);
+        })
+        fontSize.addEventListener('click',(e)=>{
+    canvasContent.lineWidth=e.target.value;
+        })
+        clearButton.addEventListener('click',(e)=>{
+            canvasContent.clearRect(0,0,canvas.width,canvas.height);
+        })
+        saveButton.addEventListener('click',()=>{
+         localStorage.setItem('canvasContents',canvas.toDataURL());
+
+         let link = document.createElement('a');
+         link.download = 'Signature.png';
+         link.href = canvas.toDataURL();
+         link.click();
+        })
+
+        retrieveButton.addEventListener('click',()=>{
+            let savedCanvas = localStorage.getItem('canvasContents');
+            if(savedCanvas){
+                let img = new Image();
+                img.src = savedCanvas;
+                canvasContent.drawImage(img,0,0);
+            }
+        })
+        </script>
+</body>
+</html>
